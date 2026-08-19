@@ -29,3 +29,23 @@ jobs:
           echo "Running tests..."
           test -f index.html
           echo "Tests passed successfully!"
+
+      - name: Send Success Notification to Slack
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H 'Content-type: application/json' \
+            --data '{"text":"✅ CI Pipeline Successful!\nRepository: devops-webapp\nBranch: main\nCommit: '"$GITHUB_SHA"'"}' \
+            "$SLACK_WEBHOOK_URL"
+
+      - name: Send Failure Notification to Slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H 'Content-type: application/json' \
+            --data '{"text":"❌ CI Pipeline Failed!\nRepository: devops-webapp\nBranch: main\nCommit: '"$GITHUB_SHA"'"}' \
+            "$SLACK_WEBHOOK_URL"
